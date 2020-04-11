@@ -199,6 +199,7 @@ static Vector<Vector3> get_convex_shape_points(const Plane *p_planes, int p_plan
 	//std::cout << "get_convex_shape_points: " << std::endl;
 
 	// FIXME: Remove this.
+	/*
 	const char *plane_names[] = {
 		"PLANE_NEAR",
 		"PLANE_FAR",
@@ -211,7 +212,7 @@ static Vector<Vector3> get_convex_shape_points(const Plane *p_planes, int p_plan
 		"BAD2",
 		"BAD3",
 		"BAD4",
-	};
+	};*/
 
 	// Do initial intersection tests.
 	for (int i = p_plane_count - 1; i >= 0; i--) {

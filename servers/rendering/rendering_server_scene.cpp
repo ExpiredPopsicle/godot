@@ -2047,8 +2047,8 @@ void RenderingServerScene::_prepare_scene(const Transform p_cam_transform, const
 
 		Instance *ins = instance_cull_result[i];
 
-        // -Kiri
-		if ((ins->base_type == VS::INSTANCE_MESH) && ins->visible) {
+		// -Kiri
+		if ((ins->base_type == RS::INSTANCE_MESH) && ins->visible) {
 			if (fabs(ins->transform.origin.x) > 3.0) {
 				std::cout << "Geometry instance: " << i << std::endl;
 				std::cout << "  "
