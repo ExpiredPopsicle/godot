@@ -28,6 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+// -Kiri
+#include <iostream>
+
 #include "rendering_server_scene.h"
 
 #include "core/os/os.h"
@@ -2012,6 +2015,10 @@ void RenderingServerScene::_prepare_scene(const Transform p_cam_transform, const
 
 	Vector<Plane> planes = p_cam_projection.get_projection_planes(p_cam_transform);
 
+	// -Kiri
+    //Vector3 end_points[8];
+    //p_cam_projection.get_endpoints(p_cam_transform, end_points);
+
 	Plane near_plane(p_cam_transform.origin, -p_cam_transform.basis.get_axis(2).normalized());
 	float z_far = p_cam_projection.get_z_far();
 
@@ -2039,6 +2046,17 @@ void RenderingServerScene::_prepare_scene(const Transform p_cam_transform, const
 	for (int i = 0; i < instance_cull_count; i++) {
 
 		Instance *ins = instance_cull_result[i];
+
+        // -Kiri
+		if ((ins->base_type == VS::INSTANCE_MESH) && ins->visible) {
+			if (fabs(ins->transform.origin.x) > 3.0) {
+				std::cout << "Geometry instance: " << i << std::endl;
+				std::cout << "  "
+					<< ins->transform.origin.x << ", "
+					<< ins->transform.origin.y << ", "
+					<< ins->transform.origin.z << std::endl;
+			}
+		}
 
 		bool keep = false;
 

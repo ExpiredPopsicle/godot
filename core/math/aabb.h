@@ -31,6 +31,8 @@
 #ifndef AABB_H
 #define AABB_H
 
+#include <iostream>
+
 #include "core/math/math_defs.h"
 #include "core/math/plane.h"
 #include "core/math/vector3.h"
@@ -190,6 +192,94 @@ Vector3 AABB::get_endpoint(int p_point) const {
 	ERR_FAIL_V(Vector3());
 }
 
+// -Kiri
+static Vector<Vector3> get_convex_shape_points(const Plane *p_planes, int p_plane_count) {
+
+	Vector<Vector3> points;
+	//std::cout << "get_convex_shape_points: " << std::endl;
+
+	// FIXME: Remove this.
+	const char *plane_names[] = {
+		"PLANE_NEAR",
+		"PLANE_FAR",
+		"PLANE_LEFT",
+		"PLANE_TOP",
+		"PLANE_RIGHT",
+		"PLANE_BOTTOM",
+		"BAD0",
+		"BAD1",
+		"BAD2",
+		"BAD3",
+		"BAD4",
+	};
+
+	// Do initial intersection tests.
+	for (int i = p_plane_count - 1; i >= 0; i--) {
+		for (int j = i - 1; j >= 0; j--) {
+			for (int k = j - 1; k >= 0; k--) {
+				//std::cout << "  " << plane_names[i] << ", " << plane_names[j] << ", " << plane_names[k] << std::endl;
+				Vector3 convex_shape_point;
+				if (p_planes[i].intersect_3(p_planes[j], p_planes[k], &convex_shape_point)) {
+
+					bool excluded = false;
+
+					/*std::cout << "    GOOD: "
+						<< convex_shape_point.x << ", "
+						<< convex_shape_point.y << ", "
+						<< convex_shape_point.z << std::endl;*/
+
+					// See if any other plane excludes this point.
+					for (int n = 0; n < p_plane_count; n++) {
+						if (n != i && n != j && n != k) {
+							real_t dp = p_planes[n].normal.dot(convex_shape_point);
+							if (dp - p_planes[n].d > CMP_EPSILON) {
+								/*std::cout << "      BUT... Excluded by " << plane_names[n] << std::endl; */
+								excluded = true;
+								break;
+							}
+						}
+					}
+
+					if (!excluded) {
+						points.push_back(convex_shape_point);
+					}
+
+				} else {
+					//std::cout << "    BAD" << std::endl;
+				}
+			}
+		}
+	}
+
+	/*
+	// Exclude anything that's too far out of a plane.
+	for (int i = 0; i < p_plane_count; i++) {
+		for (int j = 0; j < points.size(); j++) {
+			real_t dp = p_planes[i].normal.dot(points[j]);
+			if (dp - p_planes[i].d > CMP_EPSILON) {
+				std::cout << "  Excluded: " << dp << ", " << p_planes[i].d << " - "
+					<< points[j].x << ", "
+					<< points[j].y << ", "
+					<< points[j].z << " by " << plane_names[i] << std::endl;
+
+				points.set(j, points[points.size() - 1]);
+				points.resize(points.size() - 1);
+				j--;
+			}
+		}
+	}
+	*/
+
+	/*std::cout << "  Number of points found: " << points.size() << std::endl;
+	for (int j = 0; j < points.size(); j++) {
+		std::cout << "  "
+			<< points[j].x << ", "
+			<< points[j].y << ", "
+			<< points[j].z << std::endl;
+	}*/
+	return points;
+}
+
 bool AABB::intersects_convex_shape(const Plane *p_planes, int p_plane_count) const {
 
 	Vector3 half_extents = size * 0.5;
@@ -204,6 +294,52 @@ bool AABB::intersects_convex_shape(const Plane *p_planes, int p_plane_count) con
 		point += ofs;
 		if (p.is_point_over(point))
 			return false;
+	}
+
+	// -Kiri
+	Vector<Vector3> shape_points = get_convex_shape_points(p_planes, p_plane_count);
+	int bad_point_count_xp = 0;
+	int bad_point_count_xm = 0;
+	int bad_point_count_yp = 0;
+	int bad_point_count_ym = 0;
+	int bad_point_count_zp = 0;
+	int bad_point_count_zm = 0;
+	for (int i = 0; i < shape_points.size(); i++) {
+
+		if (shape_points[i].x < ofs.x - half_extents.x) {
+			bad_point_count_xm++;
+		}
+
+		if (shape_points[i].x > ofs.x + half_extents.x) {
+			bad_point_count_xp++;
+		}
+
+		if (shape_points[i].y < ofs.y - half_extents.y) {
+			bad_point_count_ym++;
+		}
+
+		if (shape_points[i].y > ofs.y + half_extents.y) {
+			bad_point_count_yp++;
+		}
+
+		if (shape_points[i].z < ofs.z - half_extents.z) {
+			bad_point_count_zm++;
+		}
+
+		if (shape_points[i].z > ofs.z + half_extents.z) {
+			bad_point_count_zp++;
+		}
+	}
+
+	if (bad_point_count_xm == shape_points.size() ||
+			bad_point_count_ym == shape_points.size() ||
+			bad_point_count_zm == shape_points.size() ||
+			bad_point_count_xp == shape_points.size() ||
+			bad_point_count_yp == shape_points.size() ||
+			bad_point_count_zp == shape_points.size()) {
+		std::cout << "FALSE POSITIVE NUKED BY NEW STUFF!\n"
+				  << std::endl;
+		return false;
 	}
 
 	return true;
