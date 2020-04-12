@@ -260,84 +260,22 @@ static Vector<Vector3> get_convex_shape_points(const Plane *p_planes, int p_plan
 #endif
 
 bool AABB::intersects_convex_shape(const Plane *p_planes, int p_plane_count) const {
-
-	/*Vector3 half_extents = size * 0.5;
-	Vector3 ofs = position + half_extents;
-
-	for (int i = 0; i < p_plane_count; i++) {
-		const Plane &p = p_planes[i];
-		Vector3 point(
-				(p.normal.x > 0) ? -half_extents.x : half_extents.x,
-				(p.normal.y > 0) ? -half_extents.y : half_extents.y,
-				(p.normal.z > 0) ? -half_extents.z : half_extents.z);
-		point += ofs;
-		if (p.is_point_over(point))
-			return false;
-	}
-
-	// -Kiri
-	Vector<Vector3> shape_points = get_convex_shape_points(p_planes, p_plane_count);
-	int bad_point_count_xp = 0;
-	int bad_point_count_xm = 0;
-	int bad_point_count_yp = 0;
-	int bad_point_count_ym = 0;
-	int bad_point_count_zp = 0;
-	int bad_point_count_zm = 0;
-	for (int i = 0; i < shape_points.size(); i++) {
-
-		if (shape_points[i].x < ofs.x - half_extents.x) {
-			bad_point_count_xm++;
-		}
-
-		if (shape_points[i].x > ofs.x + half_extents.x) {
-			bad_point_count_xp++;
-		}
-
-		if (shape_points[i].y < ofs.y - half_extents.y) {
-			bad_point_count_ym++;
-		}
-
-		if (shape_points[i].y > ofs.y + half_extents.y) {
-			bad_point_count_yp++;
-		}
-
-		if (shape_points[i].z < ofs.z - half_extents.z) {
-			bad_point_count_zm++;
-		}
-
-		if (shape_points[i].z > ofs.z + half_extents.z) {
-			bad_point_count_zp++;
-		}
-	}
-
-	if (bad_point_count_xm == shape_points.size() ||
-			bad_point_count_ym == shape_points.size() ||
-			bad_point_count_zm == shape_points.size() ||
-			bad_point_count_xp == shape_points.size() ||
-			bad_point_count_yp == shape_points.size() ||
-			bad_point_count_zp == shape_points.size()) {
-		std::cout << "FALSE POSITIVE NUKED BY NEW STUFF!\n"
-				  << std::endl;
-		return false;
-	}
-
-	return true;*/
-
+	// FIXME: Remove this.
+	std::cout << "WARNING: SOMETHING USING THE OLD INTERFACE." << std::endl;
 	ConvexShape shape(p_planes, p_plane_count);
 	return intersects_convex_shape(shape);
 }
 
 bool AABB::intersects_convex_shape(const ConvexShape &p_shape) const {
 
-	// FIXME: Rename these. -Kiri
-	const Plane *p_planes = p_shape.planes.ptr();
-	int p_plane_count = p_shape.planes.size();
+	const Plane *planes = p_shape.planes.ptr();
+	int plane_count = p_shape.planes.size();
 
 	Vector3 half_extents = size * 0.5;
 	Vector3 ofs = position + half_extents;
 
-	for (int i = 0; i < p_plane_count; i++) {
-		const Plane &p = p_planes[i];
+	for (int i = 0; i < plane_count; i++) {
+		const Plane &p = planes[i];
 		Vector3 point(
 				(p.normal.x > 0) ? -half_extents.x : half_extents.x,
 				(p.normal.y > 0) ? -half_extents.y : half_extents.y,
@@ -349,18 +287,11 @@ bool AABB::intersects_convex_shape(const ConvexShape &p_shape) const {
 
 	// -Kiri
 	const Vector<Vector3> &shape_points = p_shape.points;
-	int bad_point_count_xp = 0;
-	int bad_point_count_xm = 0;
-	int bad_point_count_yp = 0;
-	int bad_point_count_ym = 0;
-	int bad_point_count_zp = 0;
-	int bad_point_count_zm = 0;
 
 	int bad_point_counts_positive[3] = { 0 };
 	int bad_point_counts_negative[3] = { 0 };
 
 	for (int i = 0; i < shape_points.size(); i++) {
-
 		for (int k = 0; k < 3; k++) {
 			if (shape_points[i].coord[k] > ofs.coord[k] + half_extents.coord[k]) {
 				bad_point_counts_positive[k]++;
@@ -369,51 +300,19 @@ bool AABB::intersects_convex_shape(const ConvexShape &p_shape) const {
 				bad_point_counts_negative[k]++;
 			}
 		}
-
-		if (shape_points[i].x < ofs.x - half_extents.x) {
-			bad_point_count_xm++;
-		}
-
-		if (shape_points[i].x > ofs.x + half_extents.x) {
-			bad_point_count_xp++;
-		}
-
-		if (shape_points[i].y < ofs.y - half_extents.y) {
-			bad_point_count_ym++;
-		}
-
-		if (shape_points[i].y > ofs.y + half_extents.y) {
-			bad_point_count_yp++;
-		}
-
-		if (shape_points[i].z < ofs.z - half_extents.z) {
-			bad_point_count_zm++;
-		}
-
-		if (shape_points[i].z > ofs.z + half_extents.z) {
-			bad_point_count_zp++;
-		}
 	}
 
 	for (int i = 0; i < 3; i++) {
 		if (bad_point_counts_negative[i] == shape_points.size()) {
-			std::cout << "FAILED1" << std::endl;
+			// FIXME: Remove this.
+			std::cout << "FALSE POSITIVE HANDLED BY NEW CODE (NEGATIVE)" << std::endl;
+			return false;
 		}
 		if (bad_point_counts_positive[i] == shape_points.size()) {
-			std::cout << "FAILED2" << std::endl;
+			// FIXME: Remove this.
+			std::cout << "FALSE POSITIVE HANDLED BY NEW CODE (POSITIVE)" << std::endl;
+			return false;
 		}
-	}
-
-	if (bad_point_count_xm == shape_points.size() ||
-			bad_point_count_ym == shape_points.size() ||
-			bad_point_count_zm == shape_points.size() ||
-			bad_point_count_xp == shape_points.size() ||
-			bad_point_count_yp == shape_points.size() ||
-			bad_point_count_zp == shape_points.size()) {
-		// FIXME: Remove this. -Kiri
-		std::cout << "FALSE POSITIVE NUKED BY NEW STUFF!\n"
-				  << std::endl;
-		return false;
 	}
 
 	return true;

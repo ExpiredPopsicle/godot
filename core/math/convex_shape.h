@@ -34,10 +34,23 @@
 #include "core/math/plane.h"
 #include "core/math/vector3.h"
 
+/**
+ * @class ConvexShape
+ * @author Kiri Jolly
+ * Convex shape for fast, simple AABB overlap checks.
+*/
+
 class ConvexShape {
 public:
+	ConvexShape();
 	ConvexShape(const Plane *p_planes, int p_plane_count);
 	ConvexShape(const Plane *p_planes, int p_plane_count, const Vector3 *p_points, int p_point_count);
+
+	// Set the shape based on an array of planes. Points are calculated based on planes.
+	void set_planes(const Plane *p_planes, int p_plane_count);
+
+	// Set the shape, and use precomputed points. In case the creator already knows where the corners are.
+	void set_planes_and_points(const Plane *p_planes, int p_plane_count, const Vector3 *p_points, int p_point_count);
 
 	Vector<Vector3> points;
 	Vector<Plane> planes;

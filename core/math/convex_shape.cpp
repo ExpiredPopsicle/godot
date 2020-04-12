@@ -33,13 +33,24 @@
 #include <string.h>
 
 ConvexShape::ConvexShape(const Plane *p_planes, int p_plane_count) {
+	set_planes(p_planes, p_plane_count);
+}
+
+ConvexShape::ConvexShape(const Plane *p_planes, int p_plane_count, const Vector3 *p_points, int p_point_count) {
+	set_planes_and_points(p_planes, p_plane_count, p_points, p_point_count);
+}
+
+ConvexShape::ConvexShape() {
+}
+
+void ConvexShape::set_planes(const Plane *p_planes, int p_plane_count) {
 	planes.resize(p_plane_count);
 	memcpy(planes.ptrw(), p_planes, p_plane_count * sizeof(Plane));
 
 	_compute_points_from_planes();
 }
 
-ConvexShape::ConvexShape(const Plane *p_planes, int p_plane_count, const Vector3 *p_points, int p_point_count) {
+void ConvexShape::set_planes_and_points(const Plane *p_planes, int p_plane_count, const Vector3 *p_points, int p_point_count) {
 	planes.resize(p_plane_count);
 	memcpy(planes.ptrw(), p_planes, p_plane_count * sizeof(Plane));
 
@@ -48,6 +59,8 @@ ConvexShape::ConvexShape(const Plane *p_planes, int p_plane_count, const Vector3
 }
 
 void ConvexShape::_compute_points_from_planes() {
+
+	WARN_PRINT("Doing slow point calculation for ConvexShape.");
 
 	points.clear();
 

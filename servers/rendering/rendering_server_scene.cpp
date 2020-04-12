@@ -2014,16 +2014,17 @@ void RenderingServerScene::_prepare_scene(const Transform p_cam_transform, const
 	//rasterizer->set_camera(camera->transform, camera_matrix,ortho);
 
 	Vector<Plane> planes = p_cam_projection.get_projection_planes(p_cam_transform);
+	ConvexShape frustum_shape = p_cam_projection.get_projection_shape(p_cam_transform);
 
 	// -Kiri
-    //Vector3 end_points[8];
-    //p_cam_projection.get_endpoints(p_cam_transform, end_points);
+	//Vector3 end_points[8];
+	//p_cam_projection.get_endpoints(p_cam_transform, end_points);
 
 	Plane near_plane(p_cam_transform.origin, -p_cam_transform.basis.get_axis(2).normalized());
 	float z_far = p_cam_projection.get_z_far();
 
 	/* STEP 2 - CULL */
-	instance_cull_count = scenario->octree.cull_convex(planes, instance_cull_result, MAX_INSTANCE_CULL);
+	instance_cull_count = scenario->octree.cull_convex(frustum_shape, instance_cull_result, MAX_INSTANCE_CULL);
 	light_cull_count = 0;
 
 	reflection_probe_cull_count = 0;
@@ -2052,9 +2053,9 @@ void RenderingServerScene::_prepare_scene(const Transform p_cam_transform, const
 			if (fabs(ins->transform.origin.x) > 3.0) {
 				std::cout << "Geometry instance: " << i << std::endl;
 				std::cout << "  "
-					<< ins->transform.origin.x << ", "
-					<< ins->transform.origin.y << ", "
-					<< ins->transform.origin.z << std::endl;
+						  << ins->transform.origin.x << ", "
+						  << ins->transform.origin.y << ", "
+						  << ins->transform.origin.z << std::endl;
 			}
 		}
 
