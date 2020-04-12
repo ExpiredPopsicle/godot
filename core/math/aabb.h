@@ -31,9 +31,6 @@
 #ifndef AABB_H
 #define AABB_H
 
-// FIXME: Remove this.
-#include <iostream>
-
 #include "core/math/convex_shape.h"
 #include "core/math/math_defs.h"
 #include "core/math/plane.h"
@@ -219,7 +216,8 @@ bool AABB::intersects_convex_shape(const ConvexShape &p_shape) const {
 			return false;
 	}
 
-	// Make sure all points in the shape aren't fully separated from the AABB on all three axes.
+	// Make sure all points in the shape aren't fully separated from the AABB on
+	// each axis.
 	const Vector<Vector3> &shape_points = p_shape.points;
 
 	int bad_point_counts_positive[3] = { 0 };
@@ -238,13 +236,9 @@ bool AABB::intersects_convex_shape(const ConvexShape &p_shape) const {
 
 	for (int i = 0; i < 3; i++) {
 		if (bad_point_counts_negative[i] == shape_points.size()) {
-			// FIXME: Remove this.
-			std::cout << "FALSE POSITIVE HANDLED BY NEW CODE (NEGATIVE)" << std::endl;
 			return false;
 		}
 		if (bad_point_counts_positive[i] == shape_points.size()) {
-			// FIXME: Remove this.
-			std::cout << "FALSE POSITIVE HANDLED BY NEW CODE (POSITIVE)" << std::endl;
 			return false;
 		}
 	}

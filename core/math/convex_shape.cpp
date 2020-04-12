@@ -60,44 +60,35 @@ void ConvexShape::set_planes_and_points(const Plane *p_planes, int p_plane_count
 
 void ConvexShape::_compute_points_from_planes() {
 
-	WARN_PRINT("Doing slow point calculation for ConvexShape.");
-
 	points.clear();
 
-	// Do initial intersection tests.
+	// Iterate through every unique combination of any three planes.
 	for (int i = planes.size() - 1; i >= 0; i--) {
 		for (int j = i - 1; j >= 0; j--) {
 			for (int k = j - 1; k >= 0; k--) {
 
-				//std::cout << "  " << plane_names[i] << ", " << plane_names[j] << ", " << plane_names[k] << std::endl;
+				// Find the point where these planes all cross over (if they
+				// do at all).
 				Vector3 convex_shape_point;
 				if (planes[i].intersect_3(planes[j], planes[k], &convex_shape_point)) {
 
+					// See if any *other* plane excludes this point because it's
+					// on the wrong side.
 					bool excluded = false;
-
-					/*std::cout << "    GOOD: "
-						<< convex_shape_point.x << ", "
-						<< convex_shape_point.y << ", "
-						<< convex_shape_point.z << std::endl;*/
-
-					// See if any other plane excludes this point.
 					for (int n = 0; n < planes.size(); n++) {
 						if (n != i && n != j && n != k) {
 							real_t dp = planes[n].normal.dot(convex_shape_point);
 							if (dp - planes[n].d > CMP_EPSILON) {
-								/*std::cout << "      BUT... Excluded by " << plane_names[n] << std::endl; */
 								excluded = true;
 								break;
 							}
 						}
 					}
 
+					// Only add the point if it passed all tests.
 					if (!excluded) {
 						points.push_back(convex_shape_point);
 					}
-
-				} else {
-					//std::cout << "    BAD" << std::endl;
 				}
 			}
 		}

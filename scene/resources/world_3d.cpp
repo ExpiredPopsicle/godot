@@ -160,6 +160,7 @@ struct SpatialIndexer {
 
 			Vector<Plane> planes = c->get_frustum();
 
+			// FIXME: Update this. -Kiri
 			int culled = octree.cull_convex(planes, cull.ptrw(), cull.size());
 
 			VisibilityNotifier3D **ptr = cull.ptrw();

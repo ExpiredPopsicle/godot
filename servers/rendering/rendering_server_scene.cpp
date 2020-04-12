@@ -1363,6 +1363,7 @@ bool RenderingServerScene::_light_instance_update_shadow(Instance *p_instance, c
 			real_t pancake_size = RSG::storage->light_get_param(p_instance->base, RS::LIGHT_PARAM_SHADOW_PANCAKE_SIZE);
 
 			if (depth_range_mode == RS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED) {
+				// FIXME: Update this -Kiri
 				//optimize min/max
 				Vector<Plane> planes = p_cam_projection.get_projection_planes(p_cam_transform);
 				int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
@@ -1585,6 +1586,7 @@ bool RenderingServerScene::_light_instance_update_shadow(Instance *p_instance, c
 				light_frustum_planes.write[4] = Plane(z_vec, z_max + 1e6);
 				light_frustum_planes.write[5] = Plane(-z_vec, -z_min); // z_min is ok, since casters further than far-light plane are not needed
 
+				// FIXME: Update this -Kiri
 				int cull_count = p_scenario->octree.cull_convex(light_frustum_planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
 
 				// a pre pass will need to be needed to determine the actual z-near to be used
@@ -1742,6 +1744,7 @@ bool RenderingServerScene::_light_instance_update_shadow(Instance *p_instance, c
 					planes.write[3] = light_transform.xform(Plane(Vector3(0, 1, z).normalized(), radius));
 					planes.write[4] = light_transform.xform(Plane(Vector3(0, -1, z).normalized(), radius));
 
+					// FIXME: Update this -Kiri
 					int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
 					Plane near_plane(light_transform.origin, light_transform.basis.get_axis(2) * z);
 
@@ -1797,6 +1800,7 @@ bool RenderingServerScene::_light_instance_update_shadow(Instance *p_instance, c
 
 					Vector<Plane> planes = cm.get_projection_planes(xform);
 
+					// FIXME: Update this -Kiri
 					int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
 
 					Plane near_plane(xform.origin, -xform.basis.get_axis(2));
@@ -1835,6 +1839,7 @@ bool RenderingServerScene::_light_instance_update_shadow(Instance *p_instance, c
 			CameraMatrix cm;
 			cm.set_perspective(angle * 2.0, 1.0, 0.01, radius);
 
+			// FIXME: Update this -Kiri
 			Vector<Plane> planes = cm.get_projection_planes(light_transform);
 			int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
 
@@ -2016,10 +2021,6 @@ void RenderingServerScene::_prepare_scene(const Transform p_cam_transform, const
 	Vector<Plane> planes = p_cam_projection.get_projection_planes(p_cam_transform);
 	ConvexShape frustum_shape = p_cam_projection.get_projection_shape(p_cam_transform);
 
-	// -Kiri
-	//Vector3 end_points[8];
-	//p_cam_projection.get_endpoints(p_cam_transform, end_points);
-
 	Plane near_plane(p_cam_transform.origin, -p_cam_transform.basis.get_axis(2).normalized());
 	float z_far = p_cam_projection.get_z_far();
 
@@ -2048,7 +2049,7 @@ void RenderingServerScene::_prepare_scene(const Transform p_cam_transform, const
 
 		Instance *ins = instance_cull_result[i];
 
-		// -Kiri
+		// FIXME: Remove this. -Kiri
 		if ((ins->base_type == RS::INSTANCE_MESH) && ins->visible) {
 			if (fabs(ins->transform.origin.x) > 3.0) {
 				std::cout << "Geometry instance: " << i << std::endl;

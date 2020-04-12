@@ -1286,7 +1286,6 @@ void Octree<T, use_pairs, AL>::_cull_point(Octant *p_octant, const Vector3 &p_po
 	}
 }
 
-// FIXME: Remove? -Kiri
 template <class T, bool use_pairs, class AL>
 int Octree<T, use_pairs, AL>::cull_convex(const Vector<Plane> &p_convex, T **p_result_array, int p_result_max, uint32_t p_mask) {
 
