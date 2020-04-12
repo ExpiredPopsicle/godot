@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  collision_shape_3d.h                                                 */
+/*  convex_shape.h                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -33,12 +33,6 @@
 
 #include "core/math/plane.h"
 #include "core/math/vector3.h"
-
-/**
- * @class ConvexShape
- * @author Kiri Jolly
- * Convex shape for fast, simple AABB overlap checks.
-*/
 
 class ConvexShape {
 public:

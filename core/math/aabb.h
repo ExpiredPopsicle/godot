@@ -31,6 +31,7 @@
 #ifndef AABB_H
 #define AABB_H
 
+// FIXME: Remove this.
 #include <iostream>
 
 #include "core/math/convex_shape.h"
@@ -194,74 +195,7 @@ Vector3 AABB::get_endpoint(int p_point) const {
 	ERR_FAIL_V(Vector3());
 }
 
-#if 0
-// -Kiri
-static Vector<Vector3> get_convex_shape_points(const Plane *p_planes, int p_plane_count) {
-
-	Vector<Vector3> points;
-	//std::cout << "get_convex_shape_points: " << std::endl;
-
-	// FIXME: Remove this.
-	/*
-	const char *plane_names[] = {
-		"PLANE_NEAR",
-		"PLANE_FAR",
-		"PLANE_LEFT",
-		"PLANE_TOP",
-		"PLANE_RIGHT",
-		"PLANE_BOTTOM",
-		"BAD0",
-		"BAD1",
-		"BAD2",
-		"BAD3",
-		"BAD4",
-	};*/
-
-	// Do initial intersection tests.
-	for (int i = p_plane_count - 1; i >= 0; i--) {
-		for (int j = i - 1; j >= 0; j--) {
-			for (int k = j - 1; k >= 0; k--) {
-				//std::cout << "  " << plane_names[i] << ", " << plane_names[j] << ", " << plane_names[k] << std::endl;
-				Vector3 convex_shape_point;
-				if (p_planes[i].intersect_3(p_planes[j], p_planes[k], &convex_shape_point)) {
-
-					bool excluded = false;
-
-					/*std::cout << "    GOOD: "
-						<< convex_shape_point.x << ", "
-						<< convex_shape_point.y << ", "
-						<< convex_shape_point.z << std::endl;*/
-
-					// See if any other plane excludes this point.
-					for (int n = 0; n < p_plane_count; n++) {
-						if (n != i && n != j && n != k) {
-							real_t dp = p_planes[n].normal.dot(convex_shape_point);
-							if (dp - p_planes[n].d > CMP_EPSILON) {
-								/*std::cout << "      BUT... Excluded by " << plane_names[n] << std::endl; */
-								excluded = true;
-								break;
-							}
-						}
-					}
-
-					if (!excluded) {
-						points.push_back(convex_shape_point);
-					}
-
-				} else {
-					//std::cout << "    BAD" << std::endl;
-				}
-			}
-		}
-	}
-
-	return points;
-}
-#endif
-
 bool AABB::intersects_convex_shape(const Plane *p_planes, int p_plane_count) const {
-	// FIXME: Remove this.
-	std::cout << "WARNING: SOMETHING USING THE OLD INTERFACE." << std::endl;
 	ConvexShape shape(p_planes, p_plane_count);
 	return intersects_convex_shape(shape);
 }
@@ -285,7 +219,7 @@ bool AABB::intersects_convex_shape(const ConvexShape &p_shape) const {
 			return false;
 	}
 
-	// -Kiri
+	// Make sure all points in the shape aren't fully separated from the AABB on all three axes.
 	const Vector<Vector3> &shape_points = p_shape.points;
 
 	int bad_point_counts_positive[3] = { 0 };

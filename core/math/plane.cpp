@@ -88,7 +88,6 @@ bool Plane::intersect_3(const Plane &p_plane1, const Plane &p_plane2, Vector3 *r
 
 	real_t denom = vec3_cross(normal0, normal1).dot(normal2);
 
-	// Normals likely perpendicular. -Kiri
 	if (Math::is_zero_approx(denom))
 		return false;
 
