@@ -28,6 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+// FIXME: Remove this.
+#include <iostream>
+
 #include "rendering_server_scene.h"
 
 #include "core/os/os.h"
@@ -847,6 +850,9 @@ Vector<ObjectID> RenderingServerScene::instances_cull_convex(const Vector<Plane>
 
 	culled = scenario->octree.cull_convex(p_convex, cull, 1024);
 
+	// FIXME: Remove this. -Kiri
+	std::cout << "Culled count: " << culled << std::endl;
+
 	for (int i = 0; i < culled; i++) {
 
 		Instance *instance = cull[i];
@@ -856,6 +862,9 @@ Vector<ObjectID> RenderingServerScene::instances_cull_convex(const Vector<Plane>
 
 		instances.push_back(instance->object_id);
 	}
+
+	// FIXME: Remove this.
+	std::cout << "Instance count: " << instances.size() << std::endl;
 
 	return instances;
 }

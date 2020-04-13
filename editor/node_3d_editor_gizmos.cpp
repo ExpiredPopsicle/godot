@@ -427,6 +427,8 @@ void EditorNode3DGizmo::add_solid_box(Ref<Material> &p_material, Vector3 p_size,
 
 bool EditorNode3DGizmo::intersect_frustum(const Camera3D *p_camera, const Vector<Plane> &p_frustum) {
 
+	// Something's broken in here. -Kiri
+
 	ERR_FAIL_COND_V(!spatial_node, false);
 	ERR_FAIL_COND_V(!valid, false);
 
@@ -485,7 +487,8 @@ bool EditorNode3DGizmo::intersect_frustum(const Camera3D *p_camera, const Vector
 
 		Vector<Plane> transformed_frustum;
 
-		for (int i = 0; i < 4; i++) {
+		// This used to be a hardcoded value of 4. -Kiri
+		for (int i = 0; i < p_frustum.size(); i++) {
 			transformed_frustum.push_back(it.xform(p_frustum[i]));
 		}
 
