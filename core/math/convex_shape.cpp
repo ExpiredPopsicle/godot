@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  collision_shape_3d.cpp                                               */
+/*  convex_shape.cpp                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -30,8 +30,6 @@
 
 #include "convex_shape.h"
 
-#include <string.h>
-
 ConvexShape::ConvexShape(const Plane *p_planes, int p_plane_count) {
 	set_planes(p_planes, p_plane_count);
 }
@@ -45,17 +43,23 @@ ConvexShape::ConvexShape() {
 
 void ConvexShape::set_planes(const Plane *p_planes, int p_plane_count) {
 	planes.resize(p_plane_count);
-	memcpy(planes.ptrw(), p_planes, p_plane_count * sizeof(Plane));
+	for (int i = 0; i < p_plane_count; i++) {
+		planes.write[i] = p_planes[i];
+	}
 
 	_compute_points_from_planes();
 }
 
 void ConvexShape::set_planes_and_points(const Plane *p_planes, int p_plane_count, const Vector3 *p_points, int p_point_count) {
 	planes.resize(p_plane_count);
-	memcpy(planes.ptrw(), p_planes, p_plane_count * sizeof(Plane));
+	for (int i = 0; i < p_plane_count; i++) {
+		planes.write[i] = p_planes[i];
+	}
 
 	points.resize(p_point_count);
-	memcpy(points.ptrw(), p_points, p_point_count * sizeof(Vector3));
+	for (int i = 0; i < p_point_count; i++) {
+		points.write[i] = p_points[i];
+	}
 }
 
 void ConvexShape::_compute_points_from_planes() {
