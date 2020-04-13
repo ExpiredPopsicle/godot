@@ -28,9 +28,6 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-// FIXME: Remove this. -Kiri
-#include <iostream>
-
 #include "rendering_server_scene.h"
 
 #include "core/os/os.h"
@@ -2059,17 +2056,6 @@ void RenderingServerScene::_prepare_scene(const Transform p_cam_transform, const
 	for (int i = 0; i < instance_cull_count; i++) {
 
 		Instance *ins = instance_cull_result[i];
-
-		// FIXME: Remove this. -Kiri
-		/*if ((ins->base_type == RS::INSTANCE_MESH) && ins->visible) {
-			if (fabs(ins->transform.origin.x) > 3.0) {
-				std::cout << "Geometry instance: " << i << std::endl;
-				std::cout << "  "
-						  << ins->transform.origin.x << ", "
-						  << ins->transform.origin.y << ", "
-						  << ins->transform.origin.z << std::endl;
-			}
-		}*/
 
 		bool keep = false;
 
