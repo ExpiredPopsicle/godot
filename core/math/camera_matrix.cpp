@@ -384,6 +384,13 @@ Vector<Plane> CameraMatrix::get_projection_planes(const Transform &p_transform) 
 	return planes;
 }
 
+ConvexShape CameraMatrix::get_projection_shape(const Transform &p_transform) const {
+	Vector<Plane> planes = get_projection_planes(p_transform);
+	Vector3 points[8];
+	get_endpoints(p_transform, points);
+	return ConvexShape(planes.ptr(), planes.size(), points, 8);
+}
+
 CameraMatrix CameraMatrix::inverse() const {
 
 	CameraMatrix cm = *this;
