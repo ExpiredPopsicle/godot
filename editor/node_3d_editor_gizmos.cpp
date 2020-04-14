@@ -485,7 +485,7 @@ bool EditorNode3DGizmo::intersect_frustum(const Camera3D *p_camera, const Vector
 
 		Vector<Plane> transformed_frustum;
 
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < p_frustum.size(); i++) {
 			transformed_frustum.push_back(it.xform(p_frustum[i]));
 		}
 

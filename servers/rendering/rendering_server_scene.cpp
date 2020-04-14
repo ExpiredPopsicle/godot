@@ -1361,8 +1361,8 @@ bool RenderingServerScene::_light_instance_update_shadow(Instance *p_instance, c
 
 			if (depth_range_mode == RS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED) {
 				//optimize min/max
-				Vector<Plane> planes = p_cam_projection.get_projection_planes(p_cam_transform);
-				int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
+				ConvexShape frustum_shape = p_cam_projection.get_projection_shape(p_cam_transform);
+				int cull_count = p_scenario->octree.cull_convex(frustum_shape, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
 				Plane base(p_cam_transform.origin, -p_cam_transform.basis.get_axis(2));
 				//check distance max and min
 
@@ -1582,7 +1582,21 @@ bool RenderingServerScene::_light_instance_update_shadow(Instance *p_instance, c
 				light_frustum_planes.write[4] = Plane(z_vec, z_max + 1e6);
 				light_frustum_planes.write[5] = Plane(-z_vec, -z_min); // z_min is ok, since casters further than far-light plane are not needed
 
-				int cull_count = p_scenario->octree.cull_convex(light_frustum_planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
+				// Calculate frustum points for culling. This way we don't have
+				// to rely on the general (slower) convex shape point
+				// calculations.
+				Vector<Vector3> light_frustum_points;
+				light_frustum_points.resize(8);
+				for (int j = 0; j < 8; j++) {
+					light_frustum_points.write[j] = transform.basis.xform(
+							Vector3((j & 1) ? x_max : x_min,
+									(j & 2) ? y_max : y_min,
+									(j & 4) ? (z_max + 1e6) : z_min));
+				}
+
+				ConvexShape light_frustum_shape(light_frustum_planes.ptr(), light_frustum_planes.size());
+
+				int cull_count = p_scenario->octree.cull_convex(light_frustum_shape, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
 
 				// a pre pass will need to be needed to determine the actual z-near to be used
 
@@ -1732,18 +1746,20 @@ bool RenderingServerScene::_light_instance_update_shadow(Instance *p_instance, c
 
 					real_t z = i == 0 ? -1 : 1;
 					Vector<Plane> planes;
-					planes.resize(5);
+					planes.resize(6);
 					planes.write[0] = light_transform.xform(Plane(Vector3(0, 0, z), radius));
 					planes.write[1] = light_transform.xform(Plane(Vector3(1, 0, z).normalized(), radius));
 					planes.write[2] = light_transform.xform(Plane(Vector3(-1, 0, z).normalized(), radius));
 					planes.write[3] = light_transform.xform(Plane(Vector3(0, 1, z).normalized(), radius));
 					planes.write[4] = light_transform.xform(Plane(Vector3(0, -1, z).normalized(), radius));
+					planes.write[5] = light_transform.xform(Plane(Vector3(0, 0, -z), 0));
 
-					int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
+					ConvexShape frustum_shape(planes.ptr(), planes.size());
+
+					int cull_count = p_scenario->octree.cull_convex(frustum_shape, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
 					Plane near_plane(light_transform.origin, light_transform.basis.get_axis(2) * z);
 
 					for (int j = 0; j < cull_count; j++) {
-
 						Instance *instance = instance_shadow_cull_result[j];
 						if (!instance->visible || !((1 << instance->base_type) & RS::INSTANCE_GEOMETRY_MASK) || !static_cast<InstanceGeometryData *>(instance->base_data)->can_cast_shadows) {
 							cull_count--;
@@ -1792,9 +1808,9 @@ bool RenderingServerScene::_light_instance_update_shadow(Instance *p_instance, c
 
 					Transform xform = light_transform * Transform().looking_at(view_normals[i], view_up[i]);
 
-					Vector<Plane> planes = cm.get_projection_planes(xform);
+					ConvexShape frustum_shape = cm.get_projection_shape(xform);
 
-					int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
+					int cull_count = p_scenario->octree.cull_convex(frustum_shape, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
 
 					Plane near_plane(xform.origin, -xform.basis.get_axis(2));
 					for (int j = 0; j < cull_count; j++) {
@@ -1832,8 +1848,8 @@ bool RenderingServerScene::_light_instance_update_shadow(Instance *p_instance, c
 			CameraMatrix cm;
 			cm.set_perspective(angle * 2.0, 1.0, 0.01, radius);
 
-			Vector<Plane> planes = cm.get_projection_planes(light_transform);
-			int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
+			ConvexShape frustum_shape = cm.get_projection_shape(light_transform);
+			int cull_count = p_scenario->octree.cull_convex(frustum_shape, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
 
 			Plane near_plane(light_transform.origin, -light_transform.basis.get_axis(2));
 			for (int j = 0; j < cull_count; j++) {
@@ -2011,12 +2027,13 @@ void RenderingServerScene::_prepare_scene(const Transform p_cam_transform, const
 	//rasterizer->set_camera(camera->transform, camera_matrix,ortho);
 
 	Vector<Plane> planes = p_cam_projection.get_projection_planes(p_cam_transform);
+	ConvexShape frustum_shape = p_cam_projection.get_projection_shape(p_cam_transform);
 
 	Plane near_plane(p_cam_transform.origin, -p_cam_transform.basis.get_axis(2).normalized());
 	float z_far = p_cam_projection.get_z_far();
 
 	/* STEP 2 - CULL */
-	instance_cull_count = scenario->octree.cull_convex(planes, instance_cull_result, MAX_INSTANCE_CULL);
+	instance_cull_count = scenario->octree.cull_convex(frustum_shape, instance_cull_result, MAX_INSTANCE_CULL);
 	light_cull_count = 0;
 
 	reflection_probe_cull_count = 0;

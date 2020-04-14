@@ -674,19 +674,16 @@ void Node3DEditorViewport::_select_region() {
 		}
 	}
 
-	if (!orthogonal) {
-		Plane near(cam_pos, -_get_camera_normal());
-		near.d -= get_znear();
+	Plane near(cam_pos, -_get_camera_normal());
+	near.d -= get_znear();
+	frustum.push_back(near);
 
-		frustum.push_back(near);
+	Plane far = -near;
+	far.d += get_zfar() - get_znear();
+	frustum.push_back(far);
 
-		Plane far = -near;
-		far.d += get_zfar();
-
-		frustum.push_back(far);
-	}
-
-	Vector<ObjectID> instances = RenderingServer::get_singleton()->instances_cull_convex(frustum, get_tree()->get_root()->get_world()->get_scenario());
+	Vector<ObjectID> instances = RenderingServer::get_singleton()->instances_cull_convex(
+			frustum, get_tree()->get_root()->get_world()->get_scenario());
 	Vector<Node *> selected;
 
 	Node *edited_scene = get_tree()->get_edited_scene_root();

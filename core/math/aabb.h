@@ -31,6 +31,7 @@
 #ifndef AABB_H
 #define AABB_H
 
+#include "core/math/convex_shape.h"
 #include "core/math/math_defs.h"
 #include "core/math/plane.h"
 #include "core/math/vector3.h"
@@ -77,6 +78,7 @@ public:
 	_FORCE_INLINE_ bool smits_intersect_ray(const Vector3 &p_from, const Vector3 &p_dir, real_t t0, real_t t1) const;
 
 	_FORCE_INLINE_ bool intersects_convex_shape(const Plane *p_planes, int p_plane_count) const;
+	_FORCE_INLINE_ bool intersects_convex_shape(const ConvexShape &p_shape) const;
 	_FORCE_INLINE_ bool inside_convex_shape(const Plane *p_planes, int p_plane_count) const;
 	bool intersects_plane(const Plane &p_plane) const;
 
@@ -191,12 +193,20 @@ Vector3 AABB::get_endpoint(int p_point) const {
 }
 
 bool AABB::intersects_convex_shape(const Plane *p_planes, int p_plane_count) const {
+	ConvexShape shape(p_planes, p_plane_count);
+	return intersects_convex_shape(shape);
+}
+
+bool AABB::intersects_convex_shape(const ConvexShape &p_shape) const {
+
+	const Plane *planes = p_shape.planes.ptr();
+	int plane_count = p_shape.planes.size();
 
 	Vector3 half_extents = size * 0.5;
 	Vector3 ofs = position + half_extents;
 
-	for (int i = 0; i < p_plane_count; i++) {
-		const Plane &p = p_planes[i];
+	for (int i = 0; i < plane_count; i++) {
+		const Plane &p = planes[i];
 		Vector3 point(
 				(p.normal.x > 0) ? -half_extents.x : half_extents.x,
 				(p.normal.y > 0) ? -half_extents.y : half_extents.y,
@@ -204,6 +214,33 @@ bool AABB::intersects_convex_shape(const Plane *p_planes, int p_plane_count) con
 		point += ofs;
 		if (p.is_point_over(point))
 			return false;
+	}
+
+	// Make sure all points in the shape aren't fully separated from the AABB on
+	// each axis.
+	const Vector<Vector3> &shape_points = p_shape.points;
+
+	int bad_point_counts_positive[3] = { 0 };
+	int bad_point_counts_negative[3] = { 0 };
+
+	for (int i = 0; i < shape_points.size(); i++) {
+		for (int k = 0; k < 3; k++) {
+			if (shape_points[i].coord[k] > ofs.coord[k] + half_extents.coord[k]) {
+				bad_point_counts_positive[k]++;
+			}
+			if (shape_points[i].coord[k] < ofs.coord[k] - half_extents.coord[k]) {
+				bad_point_counts_negative[k]++;
+			}
+		}
+	}
+
+	for (int i = 0; i < 3; i++) {
+		if (bad_point_counts_negative[i] == shape_points.size()) {
+			return false;
+		}
+		if (bad_point_counts_positive[i] == shape_points.size()) {
+			return false;
+		}
 	}
 
 	return true;
