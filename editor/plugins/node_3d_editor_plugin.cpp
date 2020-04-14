@@ -674,25 +674,13 @@ void Node3DEditorViewport::_select_region() {
 		}
 	}
 
-	// FIXME: Was trying to tweak this. -Kiri
-	if (!orthogonal) {
-		Plane near(cam_pos, -_get_camera_normal());
-		near.d -= get_znear();
+	Plane near(cam_pos, -_get_camera_normal());
+	near.d -= get_znear();
+	frustum.push_back(near);
 
-		frustum.push_back(near);
-
-		Plane far = -near;
-		far.d += get_zfar() - get_znear();
-
-		frustum.push_back(far);
-	}
-
-	// FIXME: Remove this. -Kiri
-	//frustum = camera->get_frustum();
-	/*Transform camera_transform = camera->get_transform();
-	for (int i = 0; i < frustum.size(); i++) {
-		frustum.write[i] = camera_transform.xform(frustum[i]);
-	}*/
+	Plane far = -near;
+	far.d += get_zfar() - get_znear();
+	frustum.push_back(far);
 
 	Vector<ObjectID> instances = RenderingServer::get_singleton()->instances_cull_convex(
 			frustum, get_tree()->get_root()->get_world()->get_scenario());
@@ -733,7 +721,6 @@ void Node3DEditorViewport::_select_region() {
 		if (!seg.is_valid())
 			continue;
 
-		// -Kiri
 		if (seg->intersect_frustum(camera, frustum)) {
 			selected.push_back(item);
 		}
