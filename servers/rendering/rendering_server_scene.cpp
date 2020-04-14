@@ -28,9 +28,6 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-// FIXME: Remove this.
-#include <iostream>
-
 #include "rendering_server_scene.h"
 
 #include "core/os/os.h"

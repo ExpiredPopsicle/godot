@@ -5777,9 +5777,7 @@ void RenderingDeviceVulkan::draw_list_bind_uniform_set(DrawListID p_list, RID p_
 #endif
 
 	const UniformSet *uniform_set = uniform_set_owner.getornull(p_uniform_set);
-	// FIXME: Restore this. -Kiri
-	if (!uniform_set) return;
-	//ERR_FAIL_COND(!uniform_set);
+	ERR_FAIL_COND(!uniform_set);
 
 	if (p_index > dl->state.set_count) {
 		dl->state.set_count = p_index;
@@ -6179,9 +6177,7 @@ void RenderingDeviceVulkan::compute_list_bind_uniform_set(ComputeListID p_list, 
 #endif
 
 	UniformSet *uniform_set = uniform_set_owner.getornull(p_uniform_set);
-	// FIXME: Uncomment this. -Kiri
-	if (!uniform_set) return;
-	//ERR_FAIL_COND(!uniform_set);
+	ERR_FAIL_COND(!uniform_set);
 
 	if (p_index > cl->state.set_count) {
 		cl->state.set_count = p_index;
