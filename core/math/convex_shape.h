@@ -40,10 +40,14 @@ public:
 	ConvexShape(const Plane *p_planes, int p_plane_count);
 	ConvexShape(const Plane *p_planes, int p_plane_count, const Vector3 *p_points, int p_point_count);
 
-	// Set the shape based on an array of planes. Points are calculated based on planes.
+	// Set the shape based on an array of planes. Points are calculated based
+	// on planes using a general solution. If the points can be easily and
+	// quickly determined externally, then use set_planes_and_points() with
+	// those calculated points instead.
 	void set_planes(const Plane *p_planes, int p_plane_count);
 
-	// Set the shape, and use precomputed points. In case the creator already knows where the corners are.
+	// Set the shape, and use precomputed points. In case the creator already
+	// knows where the corners are.
 	void set_planes_and_points(const Plane *p_planes, int p_plane_count, const Vector3 *p_points, int p_point_count);
 
 	Vector<Vector3> points;
