@@ -218,27 +218,26 @@ bool AABB::intersects_convex_shape(const ConvexShape &p_shape) const {
 
 	// Make sure all points in the shape aren't fully separated from the AABB on
 	// each axis.
-	const Vector<Vector3> &shape_points = p_shape.points;
-
 	int bad_point_counts_positive[3] = { 0 };
 	int bad_point_counts_negative[3] = { 0 };
+	int shape_point_count = p_shape.points.size();
+	const Vector3 *points = &p_shape.points[0];
 
-	for (int i = 0; i < shape_points.size(); i++) {
-		for (int k = 0; k < 3; k++) {
-			if (shape_points[i].coord[k] > ofs.coord[k] + half_extents.coord[k]) {
+	for (int k = 0; k < 3; k++) {
+
+		for (int i = 0; i < shape_point_count; i++) {
+			if (points[i].coord[k] > ofs.coord[k] + half_extents.coord[k]) {
 				bad_point_counts_positive[k]++;
 			}
-			if (shape_points[i].coord[k] < ofs.coord[k] - half_extents.coord[k]) {
+			if (points[i].coord[k] < ofs.coord[k] - half_extents.coord[k]) {
 				bad_point_counts_negative[k]++;
 			}
 		}
-	}
 
-	for (int i = 0; i < 3; i++) {
-		if (bad_point_counts_negative[i] == shape_points.size()) {
+		if (bad_point_counts_negative[k] == shape_point_count) {
 			return false;
 		}
-		if (bad_point_counts_positive[i] == shape_points.size()) {
+		if (bad_point_counts_positive[k] == shape_point_count) {
 			return false;
 		}
 	}
