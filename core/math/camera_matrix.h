@@ -31,7 +31,6 @@
 #ifndef CAMERA_MATRIX_H
 #define CAMERA_MATRIX_H
 
-#include "core/math/convex_shape.h"
 #include "core/math/rect2.h"
 #include "core/math/transform.h"
 

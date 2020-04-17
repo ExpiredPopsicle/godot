@@ -31,7 +31,6 @@
 #include "world.h"
 
 #include "core/math/camera_matrix.h"
-#include "core/math/convex_shape.h"
 #include "core/math/octree.h"
 #include "scene/3d/camera.h"
 #include "scene/3d/visibility_notifier.h"

@@ -34,7 +34,6 @@
 #include "core/list.h"
 #include "core/map.h"
 #include "core/math/aabb.h"
-#include "core/math/convex_shape.h"
 #include "core/math/geometry.h"
 #include "core/math/vector3.h"
 #include "core/print_string.h"
@@ -1312,32 +1311,6 @@ int Octree<T, use_pairs, AL>::cull_convex(const Vector<Plane> &p_convex, T **p_r
 
 	return result_count;
 }
-
-// FIXME: Remove this one. -Kiri
-/*
-template <class T, bool use_pairs, class AL>
-int Octree<T, use_pairs, AL>::cull_convex(const ConvexShape &p_frustum_shape, T **p_result_array, int p_result_max, uint32_t p_mask) {
-
-	if (!root)
-		return 0;
-
-	int result_count = 0;
-	pass++;
-	_CullConvexData cdata;
-	cdata.planes = &p_frustum_shape.planes[0];
-	cdata.plane_count = p_frustum_shape.planes.size();
-	cdata.points = &p_frustum_shape.points[0];
-	cdata.point_count = p_frustum_shape.points.size();
-	cdata.result_array = p_result_array;
-	cdata.result_max = p_result_max;
-	cdata.result_idx = &result_count;
-	cdata.mask = p_mask;
-
-	_cull_convex(root, &cdata);
-
-	return result_count;
-}
-*/
 
 template <class T, bool use_pairs, class AL>
 int Octree<T, use_pairs, AL>::cull_aabb(const AABB &p_aabb, T **p_result_array, int p_result_max, int *p_subindex_array, uint32_t p_mask) {

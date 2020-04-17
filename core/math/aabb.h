@@ -31,7 +31,6 @@
 #ifndef AABB_H
 #define AABB_H
 
-#include "core/math/convex_shape.h"
 #include "core/math/math_defs.h"
 #include "core/math/plane.h"
 #include "core/math/vector3.h"
@@ -191,11 +190,6 @@ Vector3 AABB::get_endpoint(int p_point) const {
 	ERR_FAIL_V(Vector3());
 }
 
-/*bool AABB::intersects_convex_shape(const Plane *p_planes, int p_plane_count) const {
-	ConvexShape shape(p_planes, p_plane_count);
-	return intersects_convex_shape(shape);
-}*/
-
 bool AABB::intersects_convex_shape(const Plane *p_planes, int p_plane_count, const Vector3 *p_points, int p_point_count) const {
 
 	Vector3 half_extents = size * 0.5;
@@ -216,8 +210,6 @@ bool AABB::intersects_convex_shape(const Plane *p_planes, int p_plane_count, con
 	// each axis.
 	int bad_point_counts_positive[3] = { 0 };
 	int bad_point_counts_negative[3] = { 0 };
-	//int shape_point_count = p_shape.points.size();
-	//const Vector3 *points = &p_shape.points[0];
 
 	for (int k = 0; k < 3; k++) {
 
