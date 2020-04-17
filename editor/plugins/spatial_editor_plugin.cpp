@@ -674,8 +674,10 @@ void SpatialEditorViewport::_select_region() {
 	frustum.push_back(near);
 
 	Plane far = -near;
-	far.d += get_zfar() - get_znear();
+	far.d += get_zfar();
 	frustum.push_back(far);
+
+	// FIXME: Unbound ortho check. -Kiri
 
 	Vector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_convex(frustum, get_tree()->get_root()->get_world()->get_scenario());
 	Vector<Node *> selected;

@@ -33,7 +33,7 @@
 
 #include "core/math/plane.h"
 #include "core/math/vector3.h"
-
+/*
 class ConvexShape {
 public:
 	ConvexShape();
@@ -56,5 +56,6 @@ public:
 private:
 	void _compute_points_from_planes();
 };
+*/
 
 #endif // CONVEX_SHAPE_H

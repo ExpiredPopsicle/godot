@@ -160,9 +160,8 @@ struct SpatialIndexer {
 			Camera *c = E->key();
 
 			Vector<Plane> planes = c->get_frustum();
-			ConvexShape frustum_shape(planes.ptr(), planes.size());
 
-			int culled = octree.cull_convex(frustum_shape, cull.ptrw(), cull.size());
+			int culled = octree.cull_convex(planes, cull.ptrw(), cull.size());
 
 			VisibilityNotifier **ptr = cull.ptrw();
 

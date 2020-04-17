@@ -30,6 +30,9 @@
 
 #include "convex_shape.h"
 
+#include "geometry.h"
+
+/*
 ConvexShape::ConvexShape(const Plane *p_planes, int p_plane_count) {
 	set_planes(p_planes, p_plane_count);
 }
@@ -64,6 +67,7 @@ void ConvexShape::set_planes_and_points(const Plane *p_planes, int p_plane_count
 
 void ConvexShape::_compute_points_from_planes() {
 
+
 	points.clear();
 
 	// Iterate through every unique combination of any three planes.
@@ -97,4 +101,8 @@ void ConvexShape::_compute_points_from_planes() {
 			}
 		}
 	}
+	
+
+	points = Geometry::compute_convex_mesh_points(&planes[0], planes.size());
 }
+*/
