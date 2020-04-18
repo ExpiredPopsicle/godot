@@ -31,7 +31,6 @@
 #include "world.h"
 
 #include "core/math/camera_matrix.h"
-#include "core/math/convex_shape.h"
 #include "core/math/octree.h"
 #include "scene/3d/camera.h"
 #include "scene/3d/visibility_notifier.h"
@@ -160,9 +159,8 @@ struct SpatialIndexer {
 			Camera *c = E->key();
 
 			Vector<Plane> planes = c->get_frustum();
-			ConvexShape frustum_shape(planes.ptr(), planes.size());
 
-			int culled = octree.cull_convex(frustum_shape, cull.ptrw(), cull.size());
+			int culled = octree.cull_convex(planes, cull.ptrw(), cull.size());
 
 			VisibilityNotifier **ptr = cull.ptrw();
 

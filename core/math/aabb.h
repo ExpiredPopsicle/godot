@@ -31,7 +31,6 @@
 #ifndef AABB_H
 #define AABB_H
 
-#include "core/math/convex_shape.h"
 #include "core/math/math_defs.h"
 #include "core/math/plane.h"
 #include "core/math/vector3.h"
@@ -77,8 +76,7 @@ public:
 	bool intersects_ray(const Vector3 &p_from, const Vector3 &p_dir, Vector3 *r_clip = NULL, Vector3 *r_normal = NULL) const;
 	_FORCE_INLINE_ bool smits_intersect_ray(const Vector3 &p_from, const Vector3 &p_dir, real_t t0, real_t t1) const;
 
-	_FORCE_INLINE_ bool intersects_convex_shape(const Plane *p_planes, int p_plane_count) const;
-	_FORCE_INLINE_ bool intersects_convex_shape(const ConvexShape &p_shape) const;
+	_FORCE_INLINE_ bool intersects_convex_shape(const Plane *p_planes, int p_plane_count, const Vector3 *p_points, int p_point_count) const;
 	_FORCE_INLINE_ bool inside_convex_shape(const Plane *p_planes, int p_plane_count) const;
 	bool intersects_plane(const Plane &p_plane) const;
 
@@ -192,21 +190,13 @@ Vector3 AABB::get_endpoint(int p_point) const {
 	ERR_FAIL_V(Vector3());
 }
 
-bool AABB::intersects_convex_shape(const Plane *p_planes, int p_plane_count) const {
-	ConvexShape shape(p_planes, p_plane_count);
-	return intersects_convex_shape(shape);
-}
-
-bool AABB::intersects_convex_shape(const ConvexShape &p_shape) const {
-
-	const Plane *planes = p_shape.planes.ptr();
-	int plane_count = p_shape.planes.size();
+bool AABB::intersects_convex_shape(const Plane *p_planes, int p_plane_count, const Vector3 *p_points, int p_point_count) const {
 
 	Vector3 half_extents = size * 0.5;
 	Vector3 ofs = position + half_extents;
 
-	for (int i = 0; i < plane_count; i++) {
-		const Plane &p = planes[i];
+	for (int i = 0; i < p_plane_count; i++) {
+		const Plane &p = p_planes[i];
 		Vector3 point(
 				(p.normal.x > 0) ? -half_extents.x : half_extents.x,
 				(p.normal.y > 0) ? -half_extents.y : half_extents.y,
@@ -220,24 +210,22 @@ bool AABB::intersects_convex_shape(const ConvexShape &p_shape) const {
 	// each axis.
 	int bad_point_counts_positive[3] = { 0 };
 	int bad_point_counts_negative[3] = { 0 };
-	int shape_point_count = p_shape.points.size();
-	const Vector3 *points = &p_shape.points[0];
 
 	for (int k = 0; k < 3; k++) {
 
-		for (int i = 0; i < shape_point_count; i++) {
-			if (points[i].coord[k] > ofs.coord[k] + half_extents.coord[k]) {
+		for (int i = 0; i < p_point_count; i++) {
+			if (p_points[i].coord[k] > ofs.coord[k] + half_extents.coord[k]) {
 				bad_point_counts_positive[k]++;
 			}
-			if (points[i].coord[k] < ofs.coord[k] - half_extents.coord[k]) {
+			if (p_points[i].coord[k] < ofs.coord[k] - half_extents.coord[k]) {
 				bad_point_counts_negative[k]++;
 			}
 		}
 
-		if (bad_point_counts_negative[k] == shape_point_count) {
+		if (bad_point_counts_negative[k] == p_point_count) {
 			return false;
 		}
-		if (bad_point_counts_positive[k] == shape_point_count) {
+		if (bad_point_counts_positive[k] == p_point_count) {
 			return false;
 		}
 	}
